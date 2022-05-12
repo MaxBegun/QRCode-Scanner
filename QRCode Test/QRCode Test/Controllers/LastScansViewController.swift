@@ -8,7 +8,7 @@ final class LastScansViewController: UIViewController {
     private let lastScansTableView = UITableView()
     private var arrayOfLinks = [LinkModel]() {
         didSet {
-            fetchURLPreview(qrcodeUrl: arrayOfLinks.last?.linkString)
+            fetchURLPreview(qrcodeUrl: arrayOfLinks[0].linkString)
         }
     }
     private var arrayOfViews = [UIView]() {
@@ -19,12 +19,11 @@ final class LastScansViewController: UIViewController {
     private let scanQRbutton = UIButton()
     private lazy var linkView = LPLinkView()
     private var metaData: LPLinkMetadata = LPLinkMetadata() {
-            didSet {
-                DispatchQueue.main.async {
-                    self.addRichLinkToView(metadata: self.metaData)
-                }
-            }
+        didSet {
+            self.addRichLinkToView(metadata: self.metaData)
+            
         }
+    }
     // MARK: - Lifecycle
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,7 +32,7 @@ final class LastScansViewController: UIViewController {
         addSubviews()
         navigationController?.navigationBar.prefersLargeTitles = true
         title = "Last scans"
-
+        
         setupUI()
         addConstraints()
     }
@@ -53,7 +52,6 @@ final class LastScansViewController: UIViewController {
     private func addSubviews() {
         view.addSubview(lastScansTableView)
         view.addSubview(scanQRbutton)
-        //view.addSubview(richView)
     }
     
     private func setupUI() {
@@ -79,7 +77,7 @@ final class LastScansViewController: UIViewController {
     private func addConstraints() {
         //lastScansTableView
         lastScansTableView.translatesAutoresizingMaskIntoConstraints = false
-        lastScansTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 100).isActive = true
+        lastScansTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         lastScansTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         lastScansTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
         lastScansTableView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -10).isActive = true
@@ -97,24 +95,22 @@ final class LastScansViewController: UIViewController {
     }
     
     private func addRichLinkToView(metadata: LPLinkMetadata) {
-            let view = UIView()
-            linkView = LPLinkView(metadata: metadata)
-            view.addSubview(linkView)
-            linkView.frame = view.bounds
-            arrayOfViews.append(view)
+        linkView = LPLinkView(metadata: metadata)
+        arrayOfViews.append(linkView)
     }
-            
+    
     @available(iOS 13.0, *)
     private func fetchURLPreview(qrcodeUrl: String?) {
         guard let url = URL(string: qrcodeUrl ?? "" ) else { return }
-            let metadataProvider = LPMetadataProvider()
-            metadataProvider.startFetchingMetadata(for: url) { (metadata, error) in
+        let metadataProvider = LPMetadataProvider()
+        metadataProvider.startFetchingMetadata(for: url) { [weak self] (metadata, error) in
+            DispatchQueue.main.async {
                 guard let data = metadata, error == nil else {
                     return
                 }
-                self.metaData = data
+                self?.metaData = data
             }
-
+        }
     }
     // MARK: - Actions
     @objc private func buttonDidTapped() {
@@ -122,7 +118,7 @@ final class LastScansViewController: UIViewController {
         navigationController?.pushViewController(scannerVC, animated: true)
     }
 }
-    // MARK: - Extensions
+// MARK: - Extensions
 extension LastScansViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return arrayOfViews.count

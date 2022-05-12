@@ -15,7 +15,7 @@ final class LastScansTableViewCell: UITableViewCell {
     }
     // MARK: - Setups
     private func addSubviews() {
-        contentView.addSubview(internalView)
+//        contentView.addSubview(internalView)
     }
     
     private func setupUI() {
@@ -37,7 +37,13 @@ final class LastScansTableViewCell: UITableViewCell {
     }
     // MARK: - API
     func setupCell(view: UIView) {
-        internalView = view
-        internalView.frame = view.bounds
+        view.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(view)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 10).isActive = true
+        view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -5).isActive = true
+        view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10).isActive = true
+        view.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10).isActive = true
+//        internalView.frame = view.bounds
     }
 }
